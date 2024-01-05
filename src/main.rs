@@ -64,6 +64,8 @@ enum Variant {
     MmapParallel,
 }
 
+type ResultHashMap = FnvHashMap<String, Measurement>;
+
 struct Solver {
     input: File,
 }
@@ -100,8 +102,8 @@ impl Solver {
         Ok(format!("{{{output}}}"))
     }
 
-    fn solve_naive(&self) -> Result<FnvHashMap<String, Measurement>> {
-        let mut measurements = FnvHashMap::<String, Measurement>::default();
+    fn solve_naive(&self) -> Result<ResultHashMap> {
+        let mut measurements = ResultHashMap::default();
 
         for line in BufReader::new(&self.input).lines() {
             let line = line.expect("broken line");
@@ -122,14 +124,14 @@ impl Solver {
         Ok(measurements)
     }
 
-    fn solve_mmap_single_thread(&self) -> Result<FnvHashMap<String, Measurement>> {
+    fn solve_mmap_single_thread(&self) -> Result<ResultHashMap> {
         let mmap = unsafe { MmapOptions::new().map(&self.input)? };
 
         Ok(Self::segment_measurements(&mmap))
     }
 
-    fn solve_mmap_parallel(&self) -> Result<FnvHashMap<String, Measurement>> {
-        let mut measurements = FnvHashMap::<String, Measurement>::default();
+    fn solve_mmap_parallel(&self) -> Result<ResultHashMap> {
+        let mut measurements = ResultHashMap::default();
 
         let mmap = unsafe { MmapOptions::new().map(&self.input)? };
 
@@ -170,8 +172,8 @@ impl Solver {
         bounds
     }
 
-    fn segment_measurements(mmap: &[u8]) -> FnvHashMap<String, Measurement> {
-        let mut measurements = FnvHashMap::<String, Measurement>::default();
+    fn segment_measurements(mmap: &[u8]) -> ResultHashMap {
+        let mut measurements = ResultHashMap::default();
 
         let mut offset = 0;
         for next in memchr::Memchr::new(b'\n', mmap) {
