@@ -1,0 +1,6 @@
+/target
+/perf.data
+/perf.data.old
+/flamegraph.svg
+/check.txt
+/10m.txt
